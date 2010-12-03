@@ -11,7 +11,7 @@ sub new {
         Carp::croak('missing mandatory parameter dbh');
     }
 
-    my $self = bless {
+    bless {
         dbh => $dbh,
         active_transaction => 0,
         rollbacked_in_nested_transaction => 0,
