@@ -7,6 +7,10 @@ our $VERSION = '0.01';
 sub new {
     my ($class, $dbh) = @_;
 
+    unless ($dbh) {
+        Carp::croak('missing mandatory parameter dbh');
+    }
+
     my $self = bless {
         dbh => $dbh,
         active_transaction => 0,
@@ -99,21 +103,108 @@ __END__
 
 =head1 NAME
 
-DBIx::TransactionManager -
+DBIx::TransactionManager - transaction handling for database.
 
 =head1 SYNOPSIS
 
-  use DBIx::TransactionManager;
+basic usage:
 
+    use DBI;
+    use DBIx::TransactionManager;
+    my $dbh = DBI->connect('dbi:SQLite:');
+    my $tm = DBIx::TransactionManager->new($dbh);
+    
+    $tm->txn_begin;
+    
+        $dbh->do("insert into foo (id, var) values (1,'baz')");
+    
+    $tm->txn_commit;
+    
+scope_gurad usage:
+
+    use DBI;
+    use DBIx::TransactionManager;
+    my $dbh = DBI->connect('dbi:SQLite:');
+    my $tm = DBIx::TransactionManager->new($dbh);
+    
+    my $txn = $tm->txn_scope;
+    
+        $dbh->do("insert into foo (id, var) values (1,'baz')");
+    
+    $txn->commit;
+
+nested transaction usage:
+
+    use DBI;
+    use DBIx::TransactionManager;
+    my $dbh = DBI->connect('dbi:SQLite:');
+    my $tm = DBIx::TransactionManager->new($dbh);
+    
+    {
+        my $txn = $tm->txn_scope;
+        $dbh->do("insert into foo (id, var) values (1,'baz')");
+        {
+            my $txn2 = $tm->txn_scope;
+            $dbh->do("insert into foo (id, var) values (2,'bab')");
+            $txn2->commit;
+        }
+        {
+            my $txn3 = $tm->txn_scope;
+            $dbh->do("insert into foo (id, var) values (3,'bee')");
+            $txn3->commit;
+        }
+        $txn->commit;
+    }
+    
 =head1 DESCRIPTION
 
-DBIx::TransactionManager is
+DBIx::TransactionManager is a simple transaction manager.
+this module like  L<DBIx::Class::Storage::TxnScopeGuard>.
+
+=head1 METHODS
+
+=head2 my $tm = DBIx::TransactionManager->new($dbh)
+
+get DBIx::TransactionManager's instance object.
+$dbh parameter must be required.
+
+=head2 my $txn = $tm->txn_scope
+
+get DBIx::TransactionManager::ScopeGuard's instance object.
+
+see L</DBIx::TransactionManager::ScopeGuard's METHODS>
+
+=head2 $tm->txn_begin
+
+Start the transaction.
+
+=head2 $tm->txn_rollback
+
+Rollback the transaction.
+
+=head2 $tm->txn_commit
+
+Commit the transaction.
+
+=head1 DBIx::TransactionManager::ScopeGuard's METHODS
+
+=head2 $txn->commit
+
+Commit the transaction.
+
+=head2 $txn->rollback
+
+Rollback the transaction.
 
 =head1 AUTHOR
 
 Atsushi Kobayashi E<lt>nekokak _at_ gmail _dot_ comE<gt>
 
 =head1 SEE ALSO
+
+L<DBIx::Class::Storage::TxnScopeGuard>
+
+L<DBIx::Skinny::Transaction>
 
 =head1 LICENSE
 
