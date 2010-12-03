@@ -14,6 +14,10 @@ sub new {
     }, $class;
 }
 
+sub txn_scope {
+    DBIx::TransactionManager::ScopeGuard->new( @_ );
+}
+
 sub txn_begin {
     my $self = shift;
     return if ( ++$self->{active_transaction} > 1 );
@@ -32,7 +36,6 @@ sub txn_rollback {
         $self->{active_transaction}--;
         $self->{rollbacked_in_nested_transaction}++;
     }
-
 }
 
 sub txn_commit {
@@ -40,6 +43,7 @@ sub txn_commit {
     return unless $self->{active_transaction};
 
     if ( $self->{rollbacked_in_nested_transaction} ) {
+        $self->{dbh}->rollback;
         Carp::croak "tried to commit but already rollbacked in nested transaction.";
     }
     elsif ( $self->{active_transaction} > 1 ) {
@@ -54,6 +58,40 @@ sub txn_commit {
 sub txn_end {
     $_[0]->{active_transaction} = 0;
     $_[0]->{rollbacked_in_nested_transaction} = 0;
+}
+
+package DBIx::TransactionManager::ScopeGuard;
+use Try::Tiny;
+
+sub new {
+    my($class, $klass) = @_;
+    $klass->txn_begin;
+    bless [ 0, $klass, ], $class;
+}
+
+sub rollback {
+    return if $_[0]->[0];
+    $_[0]->[1]->txn_rollback;
+    $_[0]->[0] = 1;
+}
+
+sub commit {
+    return if $_[0]->[0];
+    $_[0]->[1]->txn_commit;
+    $_[0]->[0] = 1;
+}
+
+sub DESTROY {
+    my($dismiss, $klass) = @{ $_[0] };
+    return if $dismiss;
+
+    Carp::carp('do rollback');
+
+    try {
+        $klass->txn_rollback;
+    } catch {
+        die "Rollback failed: $_";
+    };
 }
 
 1;
