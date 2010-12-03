@@ -159,7 +159,7 @@ nested transaction usage:
 =head1 DESCRIPTION
 
 DBIx::TransactionManager is a simple transaction manager.
-this module like  L<DBIx::Class::Storage::TxnScopeGuard>.
+like  L<DBIx::Class::Storage::TxnScopeGuard>.
 
 =head1 METHODS
 
