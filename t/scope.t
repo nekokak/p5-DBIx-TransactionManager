@@ -5,9 +5,8 @@ use t::Utils;
 use Test::More;
 use DBIx::TransactionManager;
 
-my $dbh = t::Utils::setup;
-
 subtest 'do scope commit' => sub {
+    my $dbh = t::Utils::setup;
     my $tm = DBIx::TransactionManager->new($dbh);
 
     my $txn = $tm->txn_scope;
@@ -19,12 +18,10 @@ subtest 'do scope commit' => sub {
     my $row = $dbh->selectrow_hashref('select * from foo');
     is $row->{id},  1;
     is $row->{var}, 'baz';
-
-    $dbh->do('delete from foo');
-    done_testing;
 };
  
 subtest 'do scope rollback' => sub {
+    my $dbh = t::Utils::setup;
     my $tm = DBIx::TransactionManager->new($dbh);
 
     my $txn = $tm->txn_scope;
@@ -35,12 +32,10 @@ subtest 'do scope rollback' => sub {
 
     my $row = $dbh->selectrow_hashref('select * from foo');
     ok not $row;
-
-    done_testing;
 };
  
 subtest 'do scope guard for rollback' => sub {
- 
+    my $dbh = t::Utils::setup;
     my $tm = DBIx::TransactionManager->new($dbh);
 
     {
@@ -51,12 +46,11 @@ subtest 'do scope guard for rollback' => sub {
  
     my $row = $dbh->selectrow_hashref('select * from foo');
     ok not $row;
-
-    done_testing;
 };
 
 
 subtest 'do nested scope rollback-rollback' => sub {
+    my $dbh = t::Utils::setup;
     my $tm = DBIx::TransactionManager->new($dbh);
 
     my $txn = $tm->txn_scope;
@@ -69,10 +63,10 @@ subtest 'do nested scope rollback-rollback' => sub {
     $txn->rollback;
 
     ok not $dbh->selectrow_hashref('select * from foo');
-    done_testing;
 };
 
 subtest 'do nested scope commit-rollback' => sub {
+    my $dbh = t::Utils::setup;
     my $tm = DBIx::TransactionManager->new($dbh);
 
     my $txn = $tm->txn_scope;
@@ -86,10 +80,10 @@ subtest 'do nested scope commit-rollback' => sub {
     $txn->rollback;
 
     ok not $dbh->selectrow_hashref('select * from foo');
-    done_testing;
 };
 
 subtest 'do nested scope rollback-commit' => sub {
+    my $dbh = t::Utils::setup;
     my $tm = DBIx::TransactionManager->new($dbh);
 
     {
@@ -107,10 +101,10 @@ subtest 'do nested scope rollback-commit' => sub {
 
     my $row = $dbh->selectrow_hashref('select * from foo');
     ok not $dbh->selectrow_hashref('select * from foo');
-    done_testing;
 };
 
 subtest 'do nested scope commit-commit' => sub {
+    my $dbh = t::Utils::setup;
     my $tm = DBIx::TransactionManager->new($dbh);
 
     my $txn = $tm->txn_scope;
@@ -124,7 +118,6 @@ subtest 'do nested scope commit-commit' => sub {
 
     my @rows = $dbh->selectrow_array('select * from foo');
     is scalar(@rows), 2;
-    done_testing;
 };
 
 done_testing;

@@ -4,9 +4,9 @@ use t::Utils;
 use Test::More;
 use DBIx::TransactionManager;
 
-my $dbh = t::Utils::setup;
 
 subtest 'do basic transaction' => sub {
+    my $dbh = t::Utils::setup;
     my $tm = DBIx::TransactionManager->new($dbh);
 
     $tm->txn_begin;
@@ -18,12 +18,10 @@ subtest 'do basic transaction' => sub {
     my $row = $dbh->selectrow_hashref('select * from foo');
     is $row->{id},  1;
     is $row->{var}, 'baz';
-
-    $dbh->do('delete from foo');
-    done_testing;
 };
  
 subtest 'do rollback' => sub {
+    my $dbh = t::Utils::setup;
     my $tm = DBIx::TransactionManager->new($dbh);
 
     $tm->txn_begin;
