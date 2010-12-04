@@ -1,5 +1,9 @@
 Revision history for Perl extension DBIx::TransactionManager
 
+0.02
+   2010-12-05
+        - FIXED : requiers DBI.
+
 0.01
    2010-12-03
         - original version

@@ -2,6 +2,7 @@ use inc::Module::Install;
 name 'DBIx-TransactionManager';
 all_from 'lib/DBIx/TransactionManager.pm';
 
+requires 'DBI';
 requires 'Try::Tiny';
 
 tests 't/*.t';
