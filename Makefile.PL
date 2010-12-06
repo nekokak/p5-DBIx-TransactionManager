@@ -8,7 +8,7 @@ requires 'Try::Tiny';
 tests 't/*.t';
 author_tests 'xt';
 
-test_requires 'Test::More' => '0.94';
+test_requires 'Test::More' => '0.96';
 
 auto_set_repository;
 WriteAll;

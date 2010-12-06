@@ -1,5 +1,9 @@
 Revision history for Perl extension DBIx::TransactionManager
 
+0.03
+   0210-12-06
+        - FIXED : Makefile.PL. Test::More require 0.96
+
 0.02
    2010-12-05
         - FIXED : requiers DBI.
