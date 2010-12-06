@@ -1,5 +1,9 @@
 Revision history for Perl extension DBIx::TransactionManager
 
+1.00
+   2010-12-06
+        - no code change. this version is stable.
+
 0.03
    0210-12-06
         - FIXED : Makefile.PL. Test::More require 0.96
