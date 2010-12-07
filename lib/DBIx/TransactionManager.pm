@@ -47,7 +47,6 @@ sub txn_commit {
     return unless $self->{active_transaction};
 
     if ( $self->{rollbacked_in_nested_transaction} ) {
-        $self->{dbh}->rollback;
         Carp::croak "tried to commit but already rollbacked in nested transaction.";
     }
     elsif ( $self->{active_transaction} > 1 ) {
