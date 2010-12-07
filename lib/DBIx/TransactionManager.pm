@@ -2,7 +2,7 @@ package DBIx::TransactionManager;
 use strict;
 use warnings;
 use Carp ();
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 
 sub new {
     my ($class, $dbh) = @_;
@@ -89,7 +89,7 @@ sub DESTROY {
     my($dismiss, $klass) = @{ $_[0] };
     return if $dismiss;
 
-    Carp::carp('do rollback');
+    Carp::cluck('do rollback');
 
     try {
         $klass->txn_rollback;
