@@ -2,7 +2,7 @@ package DBIx::TransactionManager;
 use strict;
 use warnings;
 use Carp ();
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 
 sub new {
     my ($class, $dbh) = @_;
@@ -67,9 +67,9 @@ package DBIx::TransactionManager::ScopeGuard;
 use Try::Tiny;
 
 sub new {
-    my($class, $klass) = @_;
-    $klass->txn_begin;
-    bless [ 0, $klass, ], $class;
+    my($class, $obj) = @_;
+    $obj->txn_begin;
+    bless [ 0, $obj, ], $class;
 }
 
 sub rollback {
@@ -85,13 +85,13 @@ sub commit {
 }
 
 sub DESTROY {
-    my($dismiss, $klass) = @{ $_[0] };
+    my($dismiss, $obj) = @{ $_[0] };
     return if $dismiss;
 
     Carp::cluck('do rollback');
 
     try {
-        $klass->txn_rollback;
+        $obj->txn_rollback;
     } catch {
         die "Rollback failed: $_";
     };

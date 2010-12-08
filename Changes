@@ -1,5 +1,10 @@
 Revision history for Perl extension DBIx::TransactionManager
 
+
+1.02
+   2010-12-08
+        - refactoring.
+
 1.01
    2010-12-07
         - s/carp/cluck/; by ScopeGuard#DESTROY.
