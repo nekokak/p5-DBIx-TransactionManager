@@ -2,7 +2,7 @@ package DBIx::TransactionManager;
 use strict;
 use warnings;
 use Carp ();
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 
 sub new {
     my ($class, $dbh) = @_;
@@ -196,6 +196,10 @@ Commit the transaction.
 =head2 $txn->rollback
 
 Rollback the transaction.
+
+=head2 $txn->in_transaction
+
+are you in transaction?
 
 =head1 AUTHOR
 

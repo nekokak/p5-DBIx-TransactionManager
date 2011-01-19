@@ -1,5 +1,9 @@
 Revision history for Perl extension DBIx::TransactionManager
 
+1.03
+   2011-01-19
+        - add in_transaction method.
+        - add xt/mysql.t xt/pg.t
 
 1.02
    2010-12-08
