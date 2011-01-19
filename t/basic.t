@@ -4,7 +4,6 @@ use t::Utils;
 use Test::More;
 use DBIx::TransactionManager;
 
-
 subtest 'do basic transaction' => sub {
     my $dbh = t::Utils::setup;
     my $tm = DBIx::TransactionManager->new($dbh);
@@ -34,6 +33,20 @@ subtest 'do rollback' => sub {
     ok not $row;
 };
  
+subtest 'in_transaction' => sub {
+    my $dbh = t::Utils::setup;
+    my $tm = DBIx::TransactionManager->new($dbh);
+
+    ok not $tm->in_transaction;
+    $tm->txn_begin;
+    
+    ok $tm->in_transaction;
+
+    $tm->txn_commit;
+
+    ok not $tm->in_transaction;
+};
+
 done_testing;
 
 
