@@ -19,6 +19,8 @@ t/00_compile.t
 t/basic.t
 t/scope.t
 t/Utils.pm
+xt/mysql.t
 xt/perlcritic.t
 xt/perlcriticrc
+xt/pg.t
 xt/pod.t
