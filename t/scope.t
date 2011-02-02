@@ -132,7 +132,7 @@ subtest 'do automatic rollback' => sub {
     {
         my $txn = $tm->txn_scope;
     }
-    like($warn, qr/Transaction was aborted without calling an explicit commit or rollback\. \(Guard created at .\/t\/scope.t line 133\)/);
+    like($warn, qr/Transaction was aborted without calling an explicit commit or rollback\. \(Guard created at \.?\/?t\/scope.t line 133\)/);
 };
 
 done_testing;
