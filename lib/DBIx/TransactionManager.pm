@@ -92,7 +92,7 @@ sub DESTROY {
     my($dismiss, $obj, $caller) = @{ $_[0] };
     return if $dismiss;
 
-    Carp::cluck( "Transaction was aborted without calling an explicit commit or rollback. (Guard created at $caller->[1] line $caller->[2])" );
+    warn( "Transaction was aborted without calling an explicit commit or rollback. (Guard created at $caller->[1] line $caller->[2])" );
 
     try {
         $obj->txn_rollback;

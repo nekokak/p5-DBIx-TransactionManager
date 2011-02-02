@@ -125,11 +125,14 @@ subtest 'do automatic rollback' => sub {
     my $tm = DBIx::TransactionManager->new($dbh);
 
     my $warn;
+    local $SIG{__WARN__} = sub {
+        local $SIG{__WARN__} = 'DEFAULT';
+        $warn = $_[0]
+    };
     {
-        local $SIG{__WARN__} = sub { $warn = $_[0] };
         my $txn = $tm->txn_scope;
     }
-    like($warn, qr/Transaction was aborted without calling an explicit commit or rollback\. \(Guard created at t\/scope.t line 130\)/);
+    like($warn, qr/Transaction was aborted without calling an explicit commit or rollback\. \(Guard created at t\/scope.t line 133\)/);
 };
 
 done_testing;
