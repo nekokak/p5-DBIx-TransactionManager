@@ -1,5 +1,9 @@
 Revision history for Perl extension DBIx::TransactionManager
 
+1.05
+   2011-02-02
+        - Change cluck to warn, because we now can tell where the error happened without a stacktrace (thanks lestrrat)
+
 1.04
    2011-02-02
         - fixed DESTROY cluck message.
