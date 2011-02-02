@@ -120,5 +120,20 @@ subtest 'do nested scope commit-commit' => sub {
     is scalar(@rows), 2;
 };
 
+subtest 'do automatic rollback' => sub {
+    my $dbh = t::Utils::setup;
+    my $tm = DBIx::TransactionManager->new($dbh);
+
+    my $warn;
+    local $SIG{__WARN__} = sub {
+        local $SIG{__WARN__} = 'DEFAULT';
+        $warn = $_[0]
+    };
+    {
+        my $txn = $tm->txn_scope;
+    }
+    like($warn, qr/Transaction was aborted without calling an explicit commit or rollback\. \(Guard created at .\/t\/scope.t line 133\)/);
+};
+
 done_testing;
 

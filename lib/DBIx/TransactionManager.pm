@@ -70,8 +70,10 @@ use Try::Tiny;
 
 sub new {
     my($class, $obj) = @_;
+
+    my @caller = caller(1);
     $obj->txn_begin;
-    bless [ 0, $obj, ], $class;
+    bless [ 0, $obj, \@caller, ], $class;
 }
 
 sub rollback {
@@ -87,10 +89,10 @@ sub commit {
 }
 
 sub DESTROY {
-    my($dismiss, $obj) = @{ $_[0] };
+    my($dismiss, $obj, $caller) = @{ $_[0] };
     return if $dismiss;
 
-    Carp::cluck( "Transaction was aborted without calling an explicit commit or rollback." );
+    warn( "Transaction was aborted without calling an explicit commit or rollback. (Guard created at $caller->[1] line $caller->[2])" );
 
     try {
         $obj->txn_rollback;
