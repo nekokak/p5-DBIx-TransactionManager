@@ -1,7 +1,12 @@
 use strict;
 use warnings;
-use Test::postgresql;
 use Test::More;
+BEGIN {
+    eval { require Test::postgresql };
+    if ($@) {
+        plan skip_all => "Test::postgresql is not installed";
+    }
+}
 use DBI;
 use DBIx::TransactionManager;
 

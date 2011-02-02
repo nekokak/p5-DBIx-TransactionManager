@@ -1,7 +1,12 @@
 use strict;
 use warnings;
-use Test::mysqld;
 use Test::More;
+BEGIN {
+    eval { require Test::mysql };
+    if ($@) {
+        plan skip_all => "Test::mysql is not installed";
+    }
+}
 use DBI;
 use DBIx::TransactionManager;
 
