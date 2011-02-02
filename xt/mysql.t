@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use Test::More;
 BEGIN {
-    eval { require Test::mysql };
+    eval { require Test::mysqld };
     if ($@) {
         plan skip_all => "Test::mysql is not installed";
     }
