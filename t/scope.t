@@ -135,5 +135,20 @@ subtest 'do automatic rollback' => sub {
     like($warn, qr/Transaction was aborted without calling an explicit commit or rollback\. \(Guard created at \.?\/?t\/scope.t line 133\)/);
 };
 
+subtest 'pass arbitrary caller info' => sub {
+    my $dbh = t::Utils::setup;
+    my $tm = DBIx::TransactionManager->new($dbh);
+
+    my $warn;
+    local $SIG{__WARN__} = sub {
+        local $SIG{__WARN__} = 'DEFAULT';
+        $warn = $_[0]
+    };
+    {
+        my $txn = $tm->txn_scope( caller => [ "foo", "hoge.pm", 1 ] );
+    }
+    like($warn, qr/Transaction was aborted without calling an explicit commit or rollback\. \(Guard created at hoge.pm line 1\)/);
+};
+
 done_testing;
 

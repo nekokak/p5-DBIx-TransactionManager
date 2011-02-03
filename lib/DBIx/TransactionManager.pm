@@ -69,11 +69,11 @@ package DBIx::TransactionManager::ScopeGuard;
 use Try::Tiny;
 
 sub new {
-    my($class, $obj) = @_;
+    my($class, $obj, %args) = @_;
 
-    my @caller = caller(1);
+    my $caller = $args{caller} || [ caller(1) ];
     $obj->txn_begin;
-    bless [ 0, $obj, \@caller, ], $class;
+    bless [ 0, $obj, $caller, ], $class;
 }
 
 sub rollback {
@@ -171,9 +171,22 @@ like  L<DBIx::Class::Storage::TxnScopeGuard>.
 get DBIx::TransactionManager's instance object.
 $dbh parameter must be required.
 
-=head2 my $txn = $tm->txn_scope
+=head2 my $txn = $tm->txn_scope(%args)
 
 get DBIx::TransactionManager::ScopeGuard's instance object.
+You may pass an optional argument to %args, to tell the scope guard
+where the scope was generated, like so:
+
+    sub mymethod {
+        my $self = shift;
+        my $txn = $tm->txn_scope( caller => [ caller() ] );
+    }
+
+    $self->mymethod();
+    
+This will allow the guard object to report the caller's location
+from the perspective of C<mymethod()>, not where C<txn_scope()> was
+called.
 
 see L</DBIx::TransactionManager::ScopeGuard's METHODS>
 
