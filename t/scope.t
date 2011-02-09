@@ -132,7 +132,7 @@ subtest 'do automatic rollback' => sub {
     {
         my $txn = $tm->txn_scope;
     }
-    like($warn, qr/Transaction was aborted without calling an explicit commit or rollback\. \(Guard created at \.?\/?t\/scope.t line 133\)/);
+    like($warn, qr/Transaction was aborted without calling an explicit commit or rollback at \.\/t\/scope\.t line 135\. \(Guard created at \.?\/?t\/scope.t line 133\)/);
 };
 
 subtest 'pass arbitrary caller info' => sub {
@@ -147,7 +147,7 @@ subtest 'pass arbitrary caller info' => sub {
     {
         my $txn = $tm->txn_scope( caller => [ "foo", "hoge.pm", 1 ] );
     }
-    like($warn, qr/Transaction was aborted without calling an explicit commit or rollback\. \(Guard created at hoge.pm line 1\)/);
+    like($warn, qr/Transaction was aborted without calling an explicit commit or rollback at \.\/t\/scope\.t line 150\. \(Guard created at hoge.pm line 1\)/);
 };
 
 done_testing;
