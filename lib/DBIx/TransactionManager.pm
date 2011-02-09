@@ -2,7 +2,7 @@ package DBIx::TransactionManager;
 use strict;
 use warnings;
 use Carp ();
-our $VERSION = '1.05';
+our $VERSION = '1.06';
 
 sub new {
     my ($class, $dbh) = @_;
@@ -103,7 +103,8 @@ sub DESTROY {
     my($dismiss, $obj, $caller) = @{ $_[0] };
     return if $dismiss;
 
-    warn( "Transaction was aborted without calling an explicit commit or rollback. (Guard created at $caller->[1] line $caller->[2])" );
+    my @destroyed_at = caller();
+    warn( "Transaction was aborted without calling an explicit commit or rollback at $destroyed_at[1] line $destroyed_at[2]. (Guard created at $caller->[1] line $caller->[2])" );
 
     try {
         $obj->txn_rollback;
