@@ -10,8 +10,9 @@ BEGIN {
 use DBI;
 use DBIx::TransactionManager;
 
-my $mysql = Test::mysqld->new
-    or plan skip_all => $Test::mysqld::errstr;
+my $mysql = Test::mysqld->new( {
+    my_cnf => { "skip-networking" => "" }
+}) or plan skip_all => $Test::mysqld::errstr;
 
 my $dbh = DBI->connect($mysql->dsn( dbname => "test" ));
 $dbh->do(q{

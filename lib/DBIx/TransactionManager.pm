@@ -13,7 +13,7 @@ sub new {
 
     bless {
         dbh => $dbh,
-        active_transaction => 0,
+        active_transaction => [],
         rollbacked_in_nested_transaction => 0,
     }, $class;
 }
@@ -23,47 +23,58 @@ sub txn_scope {
 }
 
 sub txn_begin {
-    my $self = shift;
-    return if ( ++$self->{active_transaction} > 1 );
-    $self->{dbh}->begin_work;
+    my ($self, %args) = @_;
+
+    my $caller = $args{caller} || [ caller(0) ];
+    my $txns   = $self->{active_transaction};
+    push @$txns, { caller => $caller, pid => $$ };
+    if (@$txns == 1) {
+        $self->{dbh}->begin_work;
+    }
 }
 
 sub txn_rollback {
     my $self = shift;
-    return unless $self->{active_transaction};
+    my $txns = $self->{active_transaction};
+    return unless @$txns;
 
-    if ( $self->{active_transaction} == 1 ) {
-        $self->{dbh}->rollback;
-        $self->txn_end;
-    }
-    elsif ( $self->{active_transaction} > 1 ) {
-        $self->{active_transaction}--;
+    my $current = pop @$txns; 
+    if ( @$txns > 0 ) {
+        # already popped, so if there's anything, we're in a nested
+        # transaction, mate.
         $self->{rollbacked_in_nested_transaction}++;
+    } else {
+        $self->{dbh}->rollback;
+        $self->_txn_end;
     }
 }
 
 sub txn_commit {
     my $self = shift;
-    return unless $self->{active_transaction};
+    my $txns = $self->{active_transaction};
+    return unless @$txns;
 
     if ( $self->{rollbacked_in_nested_transaction} ) {
         Carp::croak "tried to commit but already rollbacked in nested transaction.";
     }
-    elsif ( $self->{active_transaction} > 1 ) {
-        $self->{active_transaction}--;
-        return;
-    }
 
-    $self->{dbh}->commit;
-    $self->txn_end;
+    my $current = pop @$txns;
+    if (@$txns == 0) {
+        $self->{dbh}->commit;
+        $self->_txn_end;
+    }
 }
 
-sub txn_end {
-    $_[0]->{active_transaction} = 0;
+sub _txn_end {
+    @{$_[0]->{active_transaction}} = ();
     $_[0]->{rollbacked_in_nested_transaction} = 0;
 }
 
-sub in_transaction { $_[0]->{active_transaction} ? 1 : 0 }
+sub in_transaction {
+    my $self = shift;
+    my $txns = $self->{active_transaction};
+    return @$txns ? $txns->[0] : ();
+}
 
 package DBIx::TransactionManager::ScopeGuard;
 use Try::Tiny;
@@ -72,7 +83,7 @@ sub new {
     my($class, $obj, %args) = @_;
 
     my $caller = $args{caller} || [ caller(1) ];
-    $obj->txn_begin;
+    $obj->txn_begin( caller => $caller );
     bless [ 0, $obj, $caller, ], $class;
 }
 
@@ -190,9 +201,18 @@ called.
 
 see L</DBIx::TransactionManager::ScopeGuard's METHODS>
 
-=head2 $tm->txn_begin
+=head2 $tm->txn_begin(%args)
 
 Start the transaction.
+
+C<txn_begin> may optionally take a 'caller' argument. This will allow you to
+provide caller information which will be used in C<in_transaction>. For example
+if you have a wrapper function that calls C<txn_begin>, you may want to 
+let the user think that the caller was one stack above your wrapper.
+
+    # use __my__ caller!
+    $tm->txn_begin( caller => [ caller(0) ] ); 
+
 
 =head2 $tm->txn_rollback
 
@@ -214,7 +234,10 @@ Rollback the transaction.
 
 =head2 $txn->in_transaction
 
-are you in transaction?
+Returns true if $txn is currently in a middle of a transaction. While normally
+you only need to use this value as a boolean, it actually returns a hashref
+consisting of 'caller' and 'pid' element. This will tell you exactly where
+the currently valid transaction started.
 
 =head1 AUTHOR
 

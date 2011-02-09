@@ -40,7 +40,11 @@ subtest 'in_transaction' => sub {
     ok not $tm->in_transaction;
     $tm->txn_begin;
     
-    ok $tm->in_transaction;
+    my $info = $tm->in_transaction;
+    ok $info;
+    is $info->{pid}, $$;
+    is $info->{caller}->[1], __FILE__;
+    is $info->{caller}->[2], 41;
 
     $tm->txn_commit;
 
