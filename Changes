@@ -1,5 +1,9 @@
 Revision history for Perl extension DBIx::TransactionManager
 
+1.07
+   2011-02-10
+        - stack transaction starting potition and pid.(thanks lestrrat)
+
 1.06
    2011-02-06
         - Allow passing caller information to txn_scope to allow better
