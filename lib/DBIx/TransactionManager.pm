@@ -13,7 +13,7 @@ sub new {
 
     bless {
         dbh => $dbh,
-        active_transaction => [],
+        active_transactions => [],
         rollbacked_in_nested_transaction => 0,
     }, $class;
 }
@@ -26,7 +26,7 @@ sub txn_begin {
     my ($self, %args) = @_;
 
     my $caller = $args{caller} || [ caller(0) ];
-    my $txns   = $self->{active_transaction};
+    my $txns   = $self->{active_transactions};
     push @$txns, { caller => $caller, pid => $$ };
     if (@$txns == 1) {
         $self->{dbh}->begin_work;
@@ -35,7 +35,7 @@ sub txn_begin {
 
 sub txn_rollback {
     my $self = shift;
-    my $txns = $self->{active_transaction};
+    my $txns = $self->{active_transactions};
     return unless @$txns;
 
     my $current = pop @$txns; 
@@ -51,7 +51,7 @@ sub txn_rollback {
 
 sub txn_commit {
     my $self = shift;
-    my $txns = $self->{active_transaction};
+    my $txns = $self->{active_transactions};
     return unless @$txns;
 
     if ( $self->{rollbacked_in_nested_transaction} ) {
@@ -66,13 +66,15 @@ sub txn_commit {
 }
 
 sub _txn_end {
-    @{$_[0]->{active_transaction}} = ();
+    @{$_[0]->{active_transactions}} = ();
     $_[0]->{rollbacked_in_nested_transaction} = 0;
 }
 
+sub active_transactions { $_[0]->{active_transactions} }
+
 sub in_transaction {
     my $self = shift;
-    my $txns = $self->{active_transaction};
+    my $txns = $self->{active_transactions};
     return @$txns ? $txns->[0] : ();
 }
 

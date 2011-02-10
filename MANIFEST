@@ -16,6 +16,7 @@ MANIFEST			This list of files
 META.yml
 README
 t/00_compile.t
+t/active_transactions.t
 t/basic.t
 t/scope.t
 t/Utils.pm
