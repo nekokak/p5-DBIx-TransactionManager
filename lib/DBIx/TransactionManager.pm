@@ -103,8 +103,7 @@ sub DESTROY {
     my($dismiss, $obj, $caller) = @{ $_[0] };
     return if $dismiss;
 
-    my @destroyed_at = caller();
-    warn( "Transaction was aborted without calling an explicit commit or rollback at $destroyed_at[1] line $destroyed_at[2]. (Guard created at $caller->[1] line $caller->[2])" );
+    warn( "Transaction was aborted without calling an explicit commit or rollback. (Guard created at $caller->[1] line $caller->[2])" );
 
     try {
         $obj->txn_rollback;
