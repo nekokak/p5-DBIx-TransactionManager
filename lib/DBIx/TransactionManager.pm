@@ -2,7 +2,7 @@ package DBIx::TransactionManager;
 use strict;
 use warnings;
 use Carp ();
-our $VERSION = '1.07';
+our $VERSION = '1.08';
 
 sub new {
     my ($class, $dbh) = @_;
@@ -224,6 +224,13 @@ Rollback the transaction.
 
 Commit the transaction.
 
+=head2 $tm->in_transaction
+
+Returns true if $txn is currently in a middle of a transaction. While normally
+you only need to use this value as a boolean, it actually returns a hashref
+consisting of 'caller' and 'pid' element. This will tell you exactly where
+the currently valid transaction started.
+
 =head1 DBIx::TransactionManager::ScopeGuard's METHODS
 
 =head2 $txn->commit
@@ -233,13 +240,6 @@ Commit the transaction.
 =head2 $txn->rollback
 
 Rollback the transaction.
-
-=head2 $txn->in_transaction
-
-Returns true if $txn is currently in a middle of a transaction. While normally
-you only need to use this value as a boolean, it actually returns a hashref
-consisting of 'caller' and 'pid' element. This will tell you exactly where
-the currently valid transaction started.
 
 =head1 AUTHOR
 

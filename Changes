@@ -1,5 +1,9 @@
 Revision history for Perl extension DBIx::TransactionManager
 
+1.08
+   2011-02-21
+        - fixed in_transaction doc potition.(thanks tokuhirom)
+
 1.07
    2011-02-10
         - stack transaction starting potition and pid.(thanks lestrrat)
