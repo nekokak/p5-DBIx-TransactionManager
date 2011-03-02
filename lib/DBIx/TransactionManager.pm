@@ -27,10 +27,10 @@ sub txn_begin {
 
     my $caller = $args{caller} || [ caller(0) ];
     my $txns   = $self->{active_transactions};
-    push @$txns, { caller => $caller, pid => $$ };
-    if (@$txns == 1) {
+    if (@$txns == 0) {
         $self->{dbh}->begin_work;
     }
+    push @$txns, { caller => $caller, pid => $$ };
 }
 
 sub txn_rollback {
