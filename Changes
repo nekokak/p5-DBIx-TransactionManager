@@ -1,5 +1,11 @@
 Revision history for Perl extension DBIx::TransactionManager
 
+1.09
+   2011-03-03
+        - Only store the txn information *AFTER* a successful begin_work() call.
+          This silences bogus errors claiming that a transaction was active
+          during a subsequent reconnect() call.
+
 1.08
    2011-02-21
         - fixed in_transaction doc potition.(thanks tokuhirom)
