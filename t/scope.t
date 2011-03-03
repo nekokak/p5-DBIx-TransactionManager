@@ -150,5 +150,30 @@ subtest 'pass arbitrary caller info' => sub {
     like($warn, qr/Transaction was aborted without calling an explicit commit or rollback\. \(Guard created at hoge.pm line 1\)/);
 };
 
+subtest "don't block subsequent calls upon failing to execute begin_work" => sub {
+    SKIP: {
+        eval { require Test::MockObject::Extends };
+        if ($@) {
+            skip "Test requires Test::MockObject::Extends", 4;
+        }
+        my $dbh = t::Utils::setup;
+        my $mock = Test::MockObject::Extends->new( $dbh );
+        $mock->mock( begin_work => sub {
+            die "DBD doesn't implement AutoCommit or something"
+        } );
+
+        my $tm = DBIx::TransactionManager->new($mock);
+
+        # should fail
+        eval {
+            $tm->txn_begin;
+        };
+        like $@, qr/DBD doesn't implement AutoCommit or something/;
+
+        # above call to txn_begin should not have changed active_transactions
+        ok ! $tm->in_transaction, "Should not be in transaction";
+    }
+};
+
 done_testing;
 
