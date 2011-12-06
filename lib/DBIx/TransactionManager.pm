@@ -15,7 +15,7 @@ sub new {
         dbh => $dbh,
         active_transactions => [],
         rollbacked_in_nested_transaction => 0,
-        _auto_commit => undef,
+        _dbh_autocommit => undef,
     }, $class;
 }
 
@@ -30,7 +30,7 @@ sub txn_begin {
     my $txns   = $self->{active_transactions};
     my $rc = 1;
     if (@$txns == 0) {
-        $self->{_auto_commit} = $self->{dbh}->{AutoCommit};
+        $self->{_dbh_autocommit} = $self->{dbh}->{AutoCommit};
         $self->{dbh}->{AutoCommit} = 1;
         $rc = $self->{dbh}->begin_work;
     }
@@ -52,8 +52,7 @@ sub txn_rollback {
     } else {
         $self->{dbh}->rollback;
         $self->_txn_end;
-        $self->{dbh}->{AutoCommit} = $self->{_auto_commit};
-        $self->{_auto_commit} = undef;
+        $self->_restore_dbh_autocommit
     }
 }
 
@@ -70,9 +69,14 @@ sub txn_commit {
     if (@$txns == 0) {
         $self->{dbh}->commit;
         $self->_txn_end;
-        $self->{dbh}->{AutoCommit} = $self->{_auto_commit};
-        $self->{_auto_commit} = undef;
+        $self->_restore_dbh_autocommit
     }
+}
+
+sub _restore_dbh_autocommit {
+    my $self = shift;
+    $self->{dbh}->{AutoCommit} = $self->{_dbh_autocommit};
+    $self->{_dbh_autocommit} = undef;
 }
 
 sub _txn_end {
