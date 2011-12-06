@@ -1,0 +1,3 @@
+--exec "perl -Ilib -MTest::Flatten"
+--merge
+--color
