@@ -1,5 +1,9 @@
 Revision history for Perl extension DBIx::TransactionManager
 
+1.10
+   2011-12-06
+        - Fixed the bug that errors occur when $dbh->{AutoCommit} is off.
+
 1.09
    2011-03-03
         - Only store the txn information *AFTER* a successful begin_work() call.

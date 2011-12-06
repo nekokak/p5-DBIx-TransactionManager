@@ -2,7 +2,7 @@ package DBIx::TransactionManager;
 use strict;
 use warnings;
 use Carp ();
-our $VERSION = '1.09';
+our $VERSION = '1.10';
 
 sub new {
     my ($class, $dbh) = @_;
