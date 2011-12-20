@@ -1,5 +1,9 @@
 Revision history for Perl extension DBIx::TransactionManager
 
+1.11
+   2011-12-20
+        - not execute begin_work at AutoCommit=0.
+
 1.10
    2011-12-06
         - Fixed the bug that errors occur when $dbh->{AutoCommit} is off.
