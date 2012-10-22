@@ -93,13 +93,13 @@ sub new {
 }
 
 sub rollback {
-    return if $_[0]->[0];
+    return if $_[0]->[0]; # do not run twice.
     $_[0]->[1]->txn_rollback;
     $_[0]->[0] = 1;
 }
 
 sub commit {
-    return if $_[0]->[0];
+    return if $_[0]->[0]; # do not run twice.
     $_[0]->[1]->txn_commit;
     $_[0]->[0] = 1;
 }
@@ -122,37 +122,28 @@ __END__
 
 =head1 NAME
 
-DBIx::TransactionManager - transaction handling for database.
+DBIx::TransactionManager - Transaction handling for database.
 
 =head1 SYNOPSIS
 
-basic usage:
+RAII style transaction management:
 
     use DBI;
     use DBIx::TransactionManager;
     my $dbh = DBI->connect('dbi:SQLite:');
     my $tm = DBIx::TransactionManager->new($dbh);
     
-    $tm->txn_begin;
-    
-        $dbh->do("insert into foo (id, var) values (1,'baz')");
-    
-    $tm->txn_commit;
-    
-scope_gurad usage:
-
-    use DBI;
-    use DBIx::TransactionManager;
-    my $dbh = DBI->connect('dbi:SQLite:');
-    my $tm = DBIx::TransactionManager->new($dbh);
-    
+    # create transaction object
     my $txn = $tm->txn_scope;
     
+        # execute query
         $dbh->do("insert into foo (id, var) values (1,'baz')");
+        # And you can do multiple database operations here
     
+    # and commit it.
     $txn->commit;
 
-nested transaction usage:
+Nested transaction usage:
 
     use DBI;
     use DBIx::TransactionManager;
@@ -178,71 +169,46 @@ nested transaction usage:
 =head1 DESCRIPTION
 
 DBIx::TransactionManager is a simple transaction manager.
-like  L<DBIx::Class::Storage::TxnScopeGuard>.
+like L<DBIx::Class::Storage::TxnScopeGuard>.
+
+This module provides two futures.
+
+=over 4
+
+=item RAII based transaction management
+
+=item Nested transaction management
+
+=back
+
+If you are writing of DBIx::* or O/R Mapper, see L<DBIx::TransactionManager::Developers>.
 
 =head1 METHODS
 
 =head2 my $tm = DBIx::TransactionManager->new($dbh)
 
-get DBIx::TransactionManager's instance object.
-$dbh parameter must be required.
+Creating an instance of this class.
+C<$dbh> is required.
 
 =head2 my $txn = $tm->txn_scope(%args)
 
-get DBIx::TransactionManager::ScopeGuard's instance object.
-You may pass an optional argument to %args, to tell the scope guard
-where the scope was generated, like so:
+Get DBIx::TransactionManager::ScopeGuard's instance object.
 
-    sub mymethod {
-        my $self = shift;
-        my $txn = $tm->txn_scope( caller => [ caller() ] );
-    }
-
-    $self->mymethod();
-    
-This will allow the guard object to report the caller's location
-from the perspective of C<mymethod()>, not where C<txn_scope()> was
-called.
-
-see L</DBIx::TransactionManager::ScopeGuard's METHODS>
-
-=head2 $tm->txn_begin(%args)
-
-Start the transaction.
-
-C<txn_begin> may optionally take a 'caller' argument. This will allow you to
-provide caller information which will be used in C<in_transaction>. For example
-if you have a wrapper function that calls C<txn_begin>, you may want to 
-let the user think that the caller was one stack above your wrapper.
-
-    # use __my__ caller!
-    $tm->txn_begin( caller => [ caller(0) ] ); 
-
-
-=head2 $tm->txn_rollback
-
-Rollback the transaction.
-
-=head2 $tm->txn_commit
-
-Commit the transaction.
-
-=head2 $tm->in_transaction
-
-Returns true if $txn is currently in a middle of a transaction. While normally
-you only need to use this value as a boolean, it actually returns a hashref
-consisting of 'caller' and 'pid' element. This will tell you exactly where
-the currently valid transaction started.
+Options for this method is only for module creators, see L<DBIx::TransactionManager::Developers>.
 
 =head1 DBIx::TransactionManager::ScopeGuard's METHODS
 
-=head2 $txn->commit
+=head2 $txn->commit()
 
 Commit the transaction.
 
-=head2 $txn->rollback
+If the C<$tm> is in a nested transaction, TransactionManager doesn't do COMMIT at here. TM just poped transaction stack and do nothing.
+
+=head2 $txn->rollback()
 
 Rollback the transaction.
+
+If the C<$tm> is in a nested transaction, TransactionManager doesn't do ROLLBACK at here. TM just poped transaction stack and do nothing.
 
 =head1 AUTHOR
 
