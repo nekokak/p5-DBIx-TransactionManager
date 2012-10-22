@@ -185,30 +185,44 @@ If you are writing of DBIx::* or O/R Mapper, see L<DBIx::TransactionManager::Dev
 
 =head1 METHODS
 
-=head2 my $tm = DBIx::TransactionManager->new($dbh)
+=over 4
+
+=item my $tm = DBIx::TransactionManager->new($dbh)
 
 Creating an instance of this class.
 C<$dbh> is required.
 
-=head2 my $txn = $tm->txn_scope(%args)
+=item my $txn = $tm->txn_scope(%args)
 
 Get DBIx::TransactionManager::ScopeGuard's instance object.
 
 Options for this method is only for module creators, see L<DBIx::TransactionManager::Developers>.
 
+=back
+
 =head1 DBIx::TransactionManager::ScopeGuard's METHODS
 
-=head2 $txn->commit()
+=over 4
+
+=item $txn->commit()
 
 Commit the transaction.
 
 If the C<$tm> is in a nested transaction, TransactionManager doesn't do COMMIT at here. TM just poped transaction stack and do nothing.
 
-=head2 $txn->rollback()
+=item $txn->rollback()
 
 Rollback the transaction.
 
 If the C<$tm> is in a nested transaction, TransactionManager doesn't do ROLLBACK at here. TM just poped transaction stack and do nothing.
+
+=back
+
+=head1 DBIx::TransactionManager and other transaction managers
+
+You B<cannot> use other transaction manager and DBIx::TransactionManager at once.
+
+If you are using O/R mapper, you should use that's transaction management feature.
 
 =head1 AUTHOR
 
