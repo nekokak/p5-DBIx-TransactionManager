@@ -1,5 +1,9 @@
 Revision history for Perl extension DBIx::TransactionManager
 
+1.12
+   2013-02-15
+        - split document for users and developers. (thanks tokuhirom)
+
 1.11
    2011-12-20
         - not execute begin_work at AutoCommit=0.
