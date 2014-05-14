@@ -89,7 +89,7 @@ sub new {
 
     my $caller = $args{caller} || [ caller(1) ];
     $obj->txn_begin( caller => $caller );
-    bless [ 0, $obj, $caller, ], $class;
+    bless [ 0, $obj, $caller, $$ ], $class;
 }
 
 sub rollback {
@@ -105,8 +105,12 @@ sub commit {
 }
 
 sub DESTROY {
-    my($dismiss, $obj, $caller) = @{ $_[0] };
+    my($dismiss, $obj, $caller, $pid) = @{ $_[0] };
     return if $dismiss;
+
+    if ( $$ != $pid ) {
+        return;
+    }
 
     warn( "Transaction was aborted without calling an explicit commit or rollback. (Guard created at $caller->[1] line $caller->[2])" );
 

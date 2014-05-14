@@ -22,6 +22,7 @@ t/basic.t
 t/scope.t
 t/Utils.pm
 xt/mysql.t
+xt/mysql_fork.t
 xt/perlcritic.t
 xt/perlcriticrc
 xt/pg.t
