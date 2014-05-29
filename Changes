@@ -1,5 +1,9 @@
 Revision history for Perl extension DBIx::TransactionManager
 
+1.13
+   2015-05-29
+        - disbale rollback in child process. (thanks kazeburo)
+
 1.12
    2013-02-15
         - split document for users and developers. (thanks tokuhirom)
